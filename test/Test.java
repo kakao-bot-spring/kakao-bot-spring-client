@@ -52,9 +52,9 @@ class Test {
         try {
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
             connection.setDoOutput(true);
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type", "application-json");
+            connection.setRequestProperty("Content-Type", "application/json");
         } catch (Exception e) {
             System.out.println("e = " + e);
             return null;
