@@ -30,7 +30,9 @@ let writeConnectionData = function(connection, jsonString) {
     }
 }
 
-let httpPost = function(connection) {
+let httpPost = function(connection, serverMessage) {
+    writeConnectionData(connection, serverMessage);
+
     let ret = new java.lang.StringBuilder();
     let rd = new java.io.BufferedReader(new java.io.InputStreamReader(connection.getInputStream()));
     let line = null;
@@ -38,6 +40,7 @@ let httpPost = function(connection) {
         ret.append(line);
         ret.append('\n');
     }
+    ret.deleteCharAt(ret.length() - 1);
     rd.close();
 
     return ret.toString();
@@ -49,4 +52,17 @@ let response = function(room, msg, sender, isGroupChat, replier, imageDB, packag
         Log.e("server connection failed");
         return;
     }
+
+    const serverMessage = JSON.stringify({
+        'room': room,
+        'msg': msg,
+        'sender': sender,
+        'isGroupChat': isGroupChat,
+        'replier': replier,
+        'imageDB': imageDB.getProfileBase64(),
+        'packageName': packageName,
+    });
+    const responseString = httpPost(connection, serverMessage);
+    Log.d("[SERVER]" + responseString);
+    Api.replyRoom(room, responseString);
 }
