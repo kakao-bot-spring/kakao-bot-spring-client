@@ -47,6 +47,7 @@ const thread = new java.lang.Thread({
         const inputStream = new java.io.BufferedReader(new java.io.InputStreamReader(socket.getInputStream()));
         let line;
         while(!socket.isClosed() && (line = inputStream.readLine()) != null) {
+            handleMessage(line);
             Log.d("[Server] " + line);
         }
     }
