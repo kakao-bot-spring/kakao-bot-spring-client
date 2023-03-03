@@ -40,6 +40,7 @@ class Test {
             DataOutputStream writeStream = new DataOutputStream(
                     connection.getOutputStream()
             );
+            writeStream.writeChars(inputJson);
             writeStream.writeBytes(inputJson);
             writeStream.close();
         } catch (Exception e) {

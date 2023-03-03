@@ -6,7 +6,7 @@ const server_connection_config = {
     port: 8080 // Spring 서버 Port
 };
 
-let establishConnection = function() {
+let establishConnection = function () {
     try {
         let connection = (new java.net.URL(server_connection_config.address + ":" + server_connection_config.port)).openConnection();
         connection.setRequestMethod("POST");
@@ -20,17 +20,17 @@ let establishConnection = function() {
     return null;
 }
 
-let writeConnectionData = function(connection, jsonString) {
+let writeConnectionData = function (connection, jsonString) {
     try {
         let writeStream = new java.io.DataOutputStream(connection.getOutputStream());
-        writeStream.writeBytes(jsonString);
+        writeStream.writeChars(jsonString);
         writeStream.close();
     } catch (e) {
         Log.e(e);
     }
 }
 
-let httpPost = function(connection, serverMessage) {
+let httpPost = function (connection, serverMessage) {
     writeConnectionData(connection, serverMessage);
 
     let ret = new java.lang.StringBuilder();
@@ -46,22 +46,26 @@ let httpPost = function(connection, serverMessage) {
     return ret.toString();
 }
 
-let response = function(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+let response = function (room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+    const serverMessage = JSON.stringify({
+        'command': 'message',
+        'data': {
+            'room': room,
+            'msg': msg,
+            'sender': sender,
+            'isGroupChat': isGroupChat,
+            'replier': replier,
+            // 'imageDB': imageDB.getProfileBase64(),
+            'packageName': packageName,
+        }
+    });
+    Log.d("[CLIENT]" + serverMessage);
+
     const connection = establishConnection();
     if (connection == null) {
         Log.e("server connection failed");
         return;
     }
-
-    const serverMessage = JSON.stringify({
-        'room': room,
-        'msg': msg,
-        'sender': sender,
-        'isGroupChat': isGroupChat,
-        'replier': replier,
-        'imageDB': imageDB.getProfileBase64(),
-        'packageName': packageName,
-    });
     const responseString = httpPost(connection, serverMessage);
     Log.d("[SERVER]" + responseString);
     Api.replyRoom(room, responseString);
