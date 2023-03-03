@@ -1,21 +1,36 @@
 package test;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 class Test {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String inputJson = "{msg: \"hello\"}";
         System.out.println("inputJson = " + inputJson);
 
-        HttpURLConnection connection = getConnection("http://144.24.64.73:8080");
-        writeInput(connection, inputJson);
+        Socket socket = new Socket("192.168.45.201", 50000);
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+        out.write(inputJson.getBytes());
+        out.close();
 
-        String res = getOutput(connection);
-        System.out.println("res = " + res);
+//        InetAddress address = InetAddress.getByName("192.168.45.201");
+//        DatagramSocket socket = new DatagramSocket(50000, address);
+//        byte[] buffer = new byte[65535];
+//        var inPacket = new java.net.DatagramPacket(buffer, buffer.length);
+//
+//        sendSocketMessage(socket, address, inputJson);
+    }
+
+    private static byte[] getBytes(String str) {
+        return str.getBytes();
+    }
+
+    private static void sendSocketMessage(DatagramSocket socket, InetAddress address, String jsonString) throws IOException {
+        byte[] bytes = getBytes(jsonString);
+        DatagramPacket outPacket = new DatagramPacket(bytes, bytes.length, address, 50000);
+        socket.send(outPacket);
     }
 
     private static String getOutput(HttpURLConnection connection) {
@@ -48,7 +63,11 @@ class Test {
         }
     }
 
-    public static HttpURLConnection getConnection(String urlString) {
+    public static HttpURLConnection getConnection(String urlString) throws SocketException, UnknownHostException {
+        var socket = new java.net.DatagramSocket();
+        InetAddress address = java.net.InetAddress.getByName("144.24.64.73/ws");
+        new InetSocketAddress("192.168.45.201/ws", 8080);
+        var buffer = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 65535);
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
